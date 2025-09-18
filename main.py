@@ -83,15 +83,15 @@ def deletar(id):
 
         try:
             cursor.execute('DELETE FROM livro WHERE id_livro = ?', (id,))
-            con.commit()  # Salva as alterações no banco de dados
-            flash('Livro excluído com sucesso!', 'success')  # Mensagem de sucesso
+            con.commit()  
+            flash('Livro excluído com sucesso!', 'success')  
         except Exception as e:
-            con.rollback()  # Reverte as alterações em caso de erro
-            flash('Erro ao excluir o livro.', 'error')  # Mensagem de erro
+            con.rollback() 
+            flash('Erro ao excluir o livro.', 'error')  
         finally:
-            cursor.close()  # Fecha o cursor independentemente do resultado
+            cursor.close()  
 
-        return redirect(url_for('index'))  # Redireciona para a página principal
+        return redirect(url_for('index'))  
 
 
 @app.route('/lista_usuario')
