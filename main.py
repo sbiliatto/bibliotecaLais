@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, flash, url_for, session
+from flask import Flask, render_template, redirect, request, flash, url_for, session, send_from_directory
 import fdb
 from flask_bcrypt import generate_password_hash, check_password_hash
 
@@ -31,8 +31,9 @@ def novo():
 @app.route('/criar', methods=['POST'])
 def criar():
     if 'id_usuario' not in session:
-        return redirect(url_for('login'))
         flash('Você precisa estar logado para acessar a página')
+        return redirect(url_for('login'))
+
 
     titulo = request.form['titulo']
     autor = request.form['autor']
@@ -44,14 +45,23 @@ def criar():
         if cursor.fetchone():
             flash('Esse livro já está cadastrado')
             return redirect(url_for('novo'))
-        cursor.execute("insert into livro(titulo, autor, ano_publicado) values (?,?,?)",
-                       (titulo, autor, ano_publicado))
+        cursor.execute("INSERT INTO livros (TITULO, AUTOR, ANO_PUBLICACAO) VALUES (?, ?, ?) RETURNING id_livro",
+            (titulo, autor, ano_publicado)
+        )
+        id_livro = cursor.fetchone()[0]
         con.commit()
+
+        arquivo = request.files['arquivo']
+        arquivo.save(f'uploads/capa{id_livro}.jpg')
+
     finally:
         cursor.close()
     flash('O livro foi cadastrado com sucesso')
     return redirect(url_for('index'))
 
+@app.route('/uploads/<nome_arquivo>')
+def imagem(nome_arquivo):
+    return send_from_directory('uploads', nome_arquivo)
 @app.route('/atualizar')
 def atualizar():
     return render_template('editar.html', titulo='Editar livro')
@@ -59,8 +69,9 @@ def atualizar():
 @app.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar(id):
     if 'id_usuario' not in session:
-        return redirect(url_for('login'))
         flash('Você precisa estar logado para acessar a página')
+        return redirect(url_for('login'))
+
 
     cursor = con.cursor()
     cursor.execute('select id_livro, titulo, autor, ano_publicado from livro where id_livro =?', (id,))
@@ -89,8 +100,9 @@ def editar(id):
 @app.route('/deletar/<int:id>', methods=('POST',))
 def deletar(id):
     if 'id_usuario' not in session:
-        return redirect(url_for('login'))
         flash('Você precisa estar logado para acessar a página')
+        return redirect(url_for('login'))
+
 
     cursor = con.cursor()
     try:
