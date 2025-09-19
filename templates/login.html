@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Biblioteca</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('novo') }}">Adicionar Livro</a>
+            <a href="{{ url_for('lista_usuario') }}"> Ver usuários</a>
+        </nav>
+    </header>
+    <main>
+        <h2>Login</h2>
+
+        <form action="{{ url_for('login') }}" method="post">
+
+            <label for="email">Insira seu email: </label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="senha">Insira sua senha: </label>
+            <input type="password" id="senha" name="senha" required>
+
+            <button type="submit">Concluir</button>
+            <a href="{{ url_for('index') }}">Cancelar</a>
+
+         </form>
+    </main>
+</body>
+</html>

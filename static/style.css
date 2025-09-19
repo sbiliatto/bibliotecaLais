@@ -170,7 +170,7 @@ a {
     text-align: center;
     display: inline-block;
     padding: 10px;
-    color: #e75480;
+    color: #fff0f5;
     text-decoration: none;
     font-weight: bold;
     margin-top: 10px;
@@ -181,3 +181,4 @@ a:hover {
     color: #c73e67;
     text-decoration: underline;
 }
+
