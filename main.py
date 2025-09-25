@@ -1,6 +1,7 @@
-from flask import Flask, render_template, redirect, request, flash, url_for, session, send_from_directory
+from flask import Flask, render_template, redirect, request, flash, url_for, session, send_from_directory, send_file
 import fdb
 from flask_bcrypt import generate_password_hash, check_password_hash
+from fpdf import FPDF
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'sua_chave_secreta_aqui'
@@ -45,7 +46,7 @@ def criar():
         if cursor.fetchone():
             flash('Esse livro já está cadastrado')
             return redirect(url_for('novo'))
-        cursor.execute("INSERT INTO livros (TITULO, AUTOR, ANO_PUBLICACAO) VALUES (?, ?, ?) RETURNING id_livro",
+        cursor.execute("INSERT INTO livro (TITULO, AUTOR, ANO_PUBLICADO) VALUES (?, ?, ?) RETURNING id_livro",
             (titulo, autor, ano_publicado)
         )
         id_livro = cursor.fetchone()[0]
@@ -62,6 +63,7 @@ def criar():
 @app.route('/uploads/<nome_arquivo>')
 def imagem(nome_arquivo):
     return send_from_directory('uploads', nome_arquivo)
+
 @app.route('/atualizar')
 def atualizar():
     return render_template('editar.html', titulo='Editar livro')
@@ -116,6 +118,32 @@ def deletar(id):
         cursor.close()
 
     return redirect(url_for('index'))
+
+@app.route('/livros/relatorio', methods=['GET'])
+def relatorio():
+    cursor = con.cursor()
+    cursor.execute("SELECT id_livro, titulo, autor, ano_publicado FROM livro")
+    livro = cursor.fetchall()
+    cursor.close()
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_font("Arial", style='B', size=16)
+    pdf.cell(200, 10, "Relatorio de Livros", ln=True, align='C')
+    pdf.ln(5)  # Espaço entre o título e a linha
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())  # Linha abaixo do título
+    pdf.ln(5)  # Espaço após a linha
+    pdf.set_font("Arial", size=12)
+    for livro in livro:
+        pdf.cell(200, 10, f"ID: {livro[0]} - {livro[1]} - {livro[2]} - {livro[3]}", ln=True)
+    contador_livros = len(livro)
+    pdf.ln(10)  # Espaço antes do contador
+    pdf.set_font("Arial", style='B', size=12)
+    pdf.cell(200, 10, f"Total de livros cadastrados: {contador_livros}", ln=True, align='C')
+    pdf_path = "relatorio_livros.pdf"
+    pdf.output(pdf_path)
+    return send_file(pdf_path, as_attachment=True, mimetype='application/pdf')
 
 
 @app.route('/lista_usuario')

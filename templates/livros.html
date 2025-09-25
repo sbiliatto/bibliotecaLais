@@ -134,6 +134,8 @@
     <a href="{{ url_for('lista_usuario') }}"> Ver usuários</a>
     <a href="{{ url_for('login') }}">Login</a>
     <a href="{{ url_for('logout') }}">Logout</a>
+    <a href="{{ url_for('relatorio') }}">Relatório</a>
+
 </nav>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
